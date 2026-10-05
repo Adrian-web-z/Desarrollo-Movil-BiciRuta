@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biciruta UDES</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#EAF2FC;--card:#fff;--ink:#0A2540;--mut:#5B7087;--p:#0057B8;--pd:#003B7A;--pl:#D6E6FA;--warn:#F5A300;--bad:#D93A3A;--ok:#14A06B;--map:#DCE9F8;--blk:#C7DBF3;--road:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07182B;--card:#0F2742;--ink:#E6F0FC;--mut:#8EA6C0;--p:#3B8BEB;--pd:#0A3A73;--pl:#17375E;--map:#0B2036;--blk:#102B49;--road:#1D3F66}}
+:root[data-theme="dark"]{--bg:#07182B;--card:#0F2742;--ink:#E6F0FC;--mut:#8EA6C0;--p:#3B8BEB;--pd:#0A3A73;--pl:#17375E;--map:#0B2036;--blk:#102B49;--road:#1D3F66}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#app{height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;position:relative;background:var(--bg)}
+header{background:linear-gradient(135deg,var(--pd),var(--p));color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+header b{font-size:17px}header small{opacity:.8;display:block;font-size:12px}
+.chip{background:rgba(255,255,255,.18);padding:6px 12px;border-radius:99px;font-size:13px;font-weight:600}
+main{flex:1;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;overflow:auto}.screen.on{display:block}
+#mw{position:relative;height:66%;min-height:340px}#map{width:100%;height:100%;background:var(--map)}#mw{isolation:isolate;z-index:0}.fab{z-index:1000}.xh{position:absolute;left:50%;top:50%;transform:translate(-50%,-92%);z-index:999;font-size:30px;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}.mk{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#F5A300;border:3px solid #fff;font-size:15px;box-shadow:0 2px 6px rgba(0,0,0,.3)}.mk.st{background:#fff;border-color:#003B7A}.me{width:18px;height:18px;border-radius:50%;background:#0057B8;border:4px solid #fff;box-shadow:0 0 0 6px rgba(0,87,184,.25)}.fab{position:absolute;right:12px;bottom:84px;display:flex;flex-direction:column;gap:8px}.fab button{width:52px;min-height:52px;padding:0;border-radius:50%;background:var(--card);box-shadow:0 3px 12px rgba(0,40,100,.25);font-size:20px}.fab button.on{background:var(--p)}.gpsl{font-size:12px;color:var(--mut);margin-bottom:6px}
+.screen{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.more{padding:4px 12px 24px}.more h4{margin:14px 4px 8px;color:var(--mut);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+.gh{margin:12px 2px 6px;font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}.grid.g3{grid-template-columns:1fr 1fr 1fr}.grid.g3 button{min-height:78px;font-size:12px;padding:0 4px;text-align:center}.grid.g3 button span{font-size:26px}
+textarea{font:inherit;width:100%;border-radius:14px;border:2px solid var(--pl);padding:10px 14px;background:var(--bg);color:var(--ink);margin:8px 0;resize:none}
+.hud{position:sticky;bottom:12px;margin:-70px 12px 0;z-index:5;background:var(--card);border-radius:20px;padding:14px;box-shadow:0 6px 24px rgba(0,40,100,.2)}
+.hud .row{display:flex;gap:10px;margin-top:10px}
+.stats{display:flex;justify-content:space-around;text-align:center}.stats b{font-size:22px;color:var(--p);display:block}.stats span{font-size:12px;color:var(--mut)}
+button{font:inherit;border:0;cursor:pointer;border-radius:16px;min-height:56px;padding:0 16px;font-weight:700;color:var(--ink);background:var(--pl)}
+button:active{transform:scale(.97)}
+.big{flex:1;background:var(--p);color:#fff;font-size:17px}
+.warn{background:var(--warn);color:#2a1c00;flex:1}
+.stop{background:var(--bad);color:#fff;flex:1}
+nav{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--card);border-top:1px solid var(--pl)}
+nav button{background:none;border-radius:0;min-height:64px;color:var(--mut);font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+nav button span{font-size:22px}nav button.on{color:var(--p)}
+.list{padding:12px;display:flex;flex-direction:column;gap:10px}
+.item{background:var(--card);border-radius:16px;padding:12px;display:flex;gap:12px;align-items:center}
+.item .ic{font-size:28px;width:48px;height:48px;border-radius:14px;background:var(--pl);display:grid;place-items:center}
+.item div.t{flex:1}.item small{color:var(--mut)}
+.item .acts{display:flex;gap:6px}.item .acts button{min-height:44px;padding:0 12px;font-size:13px}
+.sheet{position:absolute;inset:0;background:rgba(5,20,40,.55);display:none;align-items:flex-end;z-index:10}.sheet.on{display:flex}
+.panel{max-height:88%;overflow-y:auto;overscroll-behavior:contain;background:var(--card);width:100%;border-radius:28px 28px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.panel h3{margin:0 0 4px}.panel p{margin:0 0 12px;color:var(--mut);font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid button{min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:15px}.grid button span{font-size:30px}
+video{width:100%;aspect-ratio:1;object-fit:cover;border-radius:20px;background:#000;display:block}
+.vw{position:relative}.vw:after{content:"";position:absolute;inset:18%;border:3px solid #fff;border-radius:18px;box-shadow:0 0 0 999px rgba(0,30,70,.45) inset;opacity:.9;pointer-events:none;clip-path:none;background:none;box-shadow:none}
+input{font:inherit;width:100%;min-height:52px;border-radius:14px;border:2px solid var(--pl);padding:0 14px;background:var(--bg);color:var(--ink);margin:8px 0}
+#toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:var(--pd);color:#fff;padding:10px 16px;border-radius:99px;font-size:14px;z-index:20;opacity:0;transition:.25s;pointer-events:none;max-width:90%;text-align:center}
+#toast.on{opacity:1}
+.prof{padding:16px}.prof .item{margin-bottom:10px}
+</style></head><body>
+<div id="app">
+<header><div><b>🚲 Biciruta UDES</b><small>Universidad de Santander</small></div><div class="chip" id="chip">Bici bloqueada</div></header>
+<div id="toast"></div>
+<main>
+ <section class="screen on" id="s-map">
+  <div id="mw"><div id="map"></div><div class="xh">📍</div><div class="fab"><button onclick="zoom(.6)">➕</button><button onclick="zoom(1.6)">➖</button><button onclick="toUdes()">🏫</button><button id="lyr" onclick="toggleLayer()">🛰️</button></div></div>
+  <div class="hud" id="hud"></div>
+  <div class="more"><h4>Últimos reportes en la ruta</h4><div class="list" id="near" style="padding:0"></div><h4>Mapa</h4><a class="item" style="text-decoration:none;color:inherit" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Universidad+de+Santander+UDES+Lagos+del+Cacique+Bucaramanga"><div class="ic">🧭</div><div class="t"><b>Abrir la UDES en Google Maps</b><br><small>Ver calles reales y cómo llegar</small></div></a><h4>Leyenda</h4><div class="item"><div class="ic">🚲</div><div class="t"><b>Estaciones UDES</b><br><small>Punto de retiro y devolución</small></div></div><div class="item"><div class="ic">⚠️</div><div class="t"><b>Reportes de la comunidad</b><br><small>Confirma con 👍 si sigue ahí, 👎 si ya no</small></div></div></div>
+ </section>
+ <section class="screen" id="s-rep"><div class="list" id="replist"></div></section>
+ <section class="screen" id="s-me"><div class="prof">
+  <div class="item"><div class="ic">🎓</div><div class="t"><b>Estudiante UDES</b><br><small>Biciruta Bucaramanga · Campus Lagos del Cacique</small></div></div>
+  <div class="item"><div class="ic">🏁</div><div class="t"><b id="tripsN">0 viajes</b><br><small id="kmN">0 min en bici</small></div></div>
+  <div class="item"><div class="ic">📍</div><div class="t"><b id="repN">0 reportes enviados</b><br><small>Gracias por cuidar la ruta</small></div></div>
+  <button style="width:100%" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark'">🌓 Cambiar tema</button>
+ </div></section>
+ <div class="sheet" id="sc"><div class="panel"><h3>Escanea el QR de la bici</h3><p>Apunta al código pegado en el cuadro de la bicicleta.</p>
+  <div class="vw"><video id="vid" playsinline muted></video></div>
+  <input id="man" placeholder="O escribe el código (ej. UDES-BICI-014)" autocomplete="off">
+  <div class="grid" style="margin-top:4px"><button onclick="closeScan()">Cancelar</button><button class="big" onclick="tryCode(man.value)">Desbloquear</button></div>
+  <button style="width:100%;margin-top:10px;min-height:44px;font-size:13px" onclick="tryCode('UDES-BICI-014')">Simular escaneo (demo)</button></div></div>
+ <div class="sheet" id="sr"><div class="panel"><h3>¿Qué viste en la vía?</h3><p>Se publicará en tu ubicación actual para otros ciclistas.</p>
+  <div id="types"></div><textarea id="note" rows="2" maxlength="140" placeholder="Detalle opcional (ej. frente a la entrada principal)"></textarea><button style="width:100%;margin-top:10px" onclick="sr.classList.remove('on')">Cancelar</button></div></div>
+</main>
+<nav>
+ <button class="on" data-s="map"><span>🗺️</span>Mapa</button>
+ <button data-s="rep"><span>⚠️</span>Reportes</button>
+ <button data-s="me"><span>👤</span>Perfil</button>
+</nav>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const UDES={lat:7.1055,lng:-73.0951}; // UDES, Calle 70 # 55-210, Lagos del Cacique
+const GROUPS=[['Vía',{bache:['🕳️','Bache'],obst:['🚧','Obstáculo'],obras:['👷','Obras'],cierre:['⛔','Vía cerrada'],vidrios:['🍾','Vidrios / piedras'],lluvia:['🌧️','Vía mojada'],inund:['🌊','Inundación'],derr:['⛰️','Derrumbe']}],
+['Seguridad',{acc:['💥','Accidente'],peligro:['⚠️','Peligro'],perro:['🐕','Perro suelto'],insegura:['🚨','Zona insegura'],cable:['⚡','Cable caído'],robo:['🥷','Robo / hurto']}],
+['Tráfico y entorno',{trafico:['🚗','Congestión'],parq:['🅿️','Vehículo en la ciclorruta'],peat:['🚶','Peatones en la ciclorruta'],control:['👮','Control de tránsito'],semaf:['🚦','Semáforo dañado'],oscuro:['🌑','Mal iluminado'],senal:['🪧','Falta señalización']}],
+['Bicicletas',{bicidan:['🔧','Bici dañada'],bicimal:['🚲','Bici mal parqueada'],estllena:['🈵','Estación llena / vacía']}]];
+const TYPES=Object.assign({},...GROUPS.map(g=>g[1]));
+let riding=false,t0=0,dist=0,trips=0,km=0,mins=0,sent0=0,sent=0,tm=null,reports=[],id=1,stream=null,scanning=false;
+let me=null,trail=[],follow=true,mpp=1.2,gpsErr='';
+const map=L.map('map',{zoomControl:false,minZoom:12,maxBounds:[[6.95,-73.25],[7.27,-72.95]]}).setView([UDES.lat,UDES.lng],16);
+const BASE={calles:L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}),
+ esri:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Mapa © Esri'}),
+ sat:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Imágenes © Esri'})};
+let cur='calles',errs=0;BASE.calles.addTo(map);
+function setBase(k){map.removeLayer(BASE[cur]);cur=k;BASE[k].addTo(map);$('lyr').textContent=k==='sat'?'🗺️':'🛰️'}
+BASE.calles.on('tileerror',()=>{if(++errs>4&&cur==='calles'){setBase('esri');toast('Cambié a otro proveedor de mapa')}});
+function toggleLayer(){setBase(cur==='sat'?'calles':'sat')}
+function toUdes(){map.setView([UDES.lat,UDES.lng],16)}
+const layer=L.layerGroup().addTo(map);let meM=null,accC=null,trailL=null;
+const ST=[[60,-40,'Estación Campus UDES (aprox.)'],[200,70,'Estación Norte (aprox.)']];
+const LL=(dx,dy)=>({lat:UDES.lat+dy/110540,lng:UDES.lng+dx/(111320*Math.cos(UDES.lat*Math.PI/180))});
+const stations=ST.map(s=>Object.assign(LL(s[0],s[1]),{n:s[2]}));
+try{const r=JSON.parse(localStorage.getItem('bici_reports2')||'null');if(r&&r.length){reports=r;id=Math.max(...r.map(x=>x.id))+1}}catch(e){}
+if(!reports.length){[['obst',60,40],['bache',-90,70],['peligro',130,-40]].forEach(a=>{reports.push(Object.assign(LL(a[1],a[2]),{id:id++,type:a[0],t:Date.now()-6e5*id,ok:2,gone:0}))})}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2800)}
+function save(){try{localStorage.setItem('bici_reports2',JSON.stringify(reports))}catch(e){}}
+function ago(t){const m=Math.max(1,Math.round((Date.now()-t)/6e4));return m<60?`hace ${m} min`:`hace ${Math.round(m/60)} h`}
+const hav=(a,b)=>{const R=6371e3,r=Math.PI/180,dl=(b.lat-a.lat)*r,dg=(b.lng-a.lng)*r,x=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(x))};
+function gpsTxt(){return me?`📡 GPS activo · precisión ±${Math.round(me.acc)} m`:(gpsErr||'📡 Buscando tu ubicación…')}
+function hud(){
+ $('hud').innerHTML=`<div class="gpsl" id="gps">📍 Campus UDES · Lagos del Cacique, Bucaramanga</div>`+(riding?
+ `<div class="stats"><div><b id="tt">00:00</b><span>Tiempo</span></div><div><b>${sent-sent0}</b><span>Reportes</span></div><div><b>Bici 014</b><span>Desbloqueada</span></div></div>
+  <div class="row"><button class="warn" onclick="openRep()">⚠️ Reportar</button><button class="stop" onclick="endRide()">🔒 Terminar</button></div>`:
+ `<b>Listo para rodar</b><div style="color:var(--mut);font-size:14px;margin-top:2px">Escanea el QR de la bici. Para reportar, mueve el mapa hasta el 📍.</div>
+  <div class="row"><button onclick="openRep()" style="flex:0 0 30%">⚠️<br><small>Reportar</small></button><button class="big" onclick="openScan()">📷 Escanear QR</button></div>`)}
+function zoom(f){f<1?map.zoomIn():map.zoomOut()}
+const ic=(c,h)=>L.divIcon({className:'',html:h,iconSize:[c,c],iconAnchor:[c/2,c/2]});
+function draw(){
+ map.invalidateSize();layer.clearLayers();
+ stations.forEach(s=>L.marker([s.lat,s.lng],{icon:ic(30,'<div class="mk st">🚲</div>')}).bindTooltip(s.n).addTo(layer));
+ L.marker([UDES.lat,UDES.lng],{icon:ic(30,'<div class="mk st">🎓</div>')}).bindTooltip('Universidad de Santander (UDES)',{permanent:true,direction:'top',offset:[0,-16]}).addTo(layer);
+ reports.filter(r=>r.gone<2).forEach(r=>L.marker([r.lat,r.lng],{icon:ic(30,'<div class="mk">'+TYPES[r.type][0]+'</div>')}).bindTooltip(TYPES[r.type][1]).addTo(layer))}
+function onPos(p){const n={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy||30,hd:p.coords.heading};
+ if(riding&&n.acc<60){const l=trail[trail.length-1];if(!l){trail.push(n)}else{const d=hav(l,n);if(d>4){dist+=d/1000;trail.push(n);if($('dd'))$('dd').textContent=dist.toFixed(2)}}}
+ me=n;gpsErr='';if($('gps'))$('gps').textContent=gpsTxt();draw()}
+function onErr(e){gpsErr=e.code===1?'📡 GPS bloqueado: permite la ubicación en tu navegador':'📡 Sin señal GPS, reintentando…';me=e.code===1?null:me;if($('gps'))$('gps').textContent=gpsTxt();draw()}
+
+function marks(){
+ const act=reports.filter(r=>r.gone<2).slice().reverse();const row=r=>`<div class="item"><div class="ic">${TYPES[r.type][0]}</div><div class="t"><b>${TYPES[r.type][1]}</b><br><small>${ago(r.t)} · ${r.ok} confirmaciones${me?' · a '+Math.round(hav(me,r))+' m':''}</small>${r.note?`<br><small>“${r.note.replace(/</g,'&lt;')}”</small>`:''}</div><div class="acts"><button onclick="vote(${r.id},1)">👍</button><button onclick="vote(${r.id},0)">👎</button></div></div>`;
+ $('replist').innerHTML=act.map(row).join('')||'<p style="text-align:center;color:var(--mut)">Sin reportes activos 🎉</p>';$('near').innerHTML=act.slice(0,4).map(row).join('');
+ $('repN').textContent=sent+' reportes enviados';save();draw()}
+function vote(i,y){const r=reports.find(x=>x.id===i);y?r.ok++:r.gone++;toast(y?'Gracias por confirmar':'Gracias, lo revisaremos');marks()}
+function openRep(){$('types').innerHTML=GROUPS.map(g=>`<div class="gh">${g[0]}</div><div class="grid g3">${Object.entries(g[1]).map(([k,v])=>`<button onclick="addRep('${k}')"><span>${v[0]}</span>${v[1]}</button>`).join('')}</div>`).join('');$('note').value='';$('sr').classList.add('on');$('sr').querySelector('.panel').scrollTop=0}
+function addRep(k){const p=map.getCenter();
+ reports.push({id:id++,type:k,lat:p.lat,lng:p.lng,t:Date.now(),ok:1,gone:0,note:$('note').value.trim()});sent++;$('sr').classList.remove('on');marks();toast(TYPES[k][0]+' '+TYPES[k][1]+' reportado en el punto 📍');if(riding)hud()}
+async function openScan(){$('sc').classList.add('on');scanning=true;
+ try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});$('vid').srcObject=stream;await $('vid').play();loop()}
+ catch(e){toast('No se pudo abrir la cámara. Usa el código manual.')}}
+function closeScan(){scanning=false;$('sc').classList.remove('on');if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+async function loop(){if(!scanning)return;const v=$('vid');let code=null;
+ try{if(v.readyState>=2){
+  if('BarcodeDetector' in window){const d=await new BarcodeDetector({formats:['qr_code']}).detect(v);if(d[0])code=d[0].rawValue}
+  else if(window.jsQR){const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;const x=c.getContext('2d');x.drawImage(v,0,0);const q=jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height);if(q)code=q.data}}}catch(e){}
+ if(code){tryCode(code);if(!scanning)return}
+ setTimeout(loop,250)}
+function tryCode(c){c=(c||'').trim().toUpperCase();if(/^UDES-BICI-\d{3}$/.test(c)){closeScan();startRide(c)}else toast('QR no válido. Debe ser una bici UDES.')}
+function startRide(c){riding=true;t0=Date.now();dist=0;sent0=sent;$('chip').textContent='🔓 '+c.slice(5);hud();
+ tm=setInterval(()=>{const s=Math.floor((Date.now()-t0)/1e3);if($('tt'))$('tt').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000);toast('¡Bici desbloqueada! Buen viaje 🚲')}
+function endRide(){clearInterval(tm);riding=false;trips++;mins+=Math.round((Date.now()-t0)/6e4);$('tripsN').textContent=trips+(trips==1?' viaje':' viajes');$('kmN').textContent=mins+' min en bici';
+ trail=[];$('chip').textContent='Bici bloqueada';hud();draw();toast('Bici bloqueada. ¡Gracias!')}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id==='s-'+b.dataset.s));draw()});
+addEventListener('resize',()=>map.invalidateSize());
+hud();marks();
+</script></body></html>
